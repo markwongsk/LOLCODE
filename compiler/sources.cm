@@ -32,7 +32,4 @@ Group is
   codegen/liveness.sml
   codegen/register-allocator.sml
 
-  unittest/chordalgraphtest.sml
-  unittest/TEST.sig
-
   top/top.sml
