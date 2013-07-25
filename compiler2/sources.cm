@@ -1,0 +1,45 @@
+Group is
+  $/basis.cm
+  $/smlnj-lib.cm
+  $/ml-yacc-lib.cm
+
+  codegen/assem.sml
+  codegen/codegen.sml
+  codegen/graph.sml
+  (* because hashsets are only post 110.73 *)
+  codegen/hash-set-fn.sml
+  codegen/liveness.sml
+  codegen/register-allocator.sml
+
+  optimizations/detectConsts.sml
+
+  parse/ast.sml
+  parse/l2.grm.sig
+  parse/l2.grm.sml
+  parse/l2.lex.sml
+  parse/parse.sml
+  parse/parsestate.sml
+
+  staticchecks/breakContinueChecker.sml
+  staticchecks/initChecker.sml
+  staticchecks/returnChecker.sml
+  staticchecks/typechecker.sml
+
+  top/top.sml
+
+  trans/label.sml
+  trans/temp.sml
+  trans/trans.sml
+  trans/tree.sml
+
+  unittest/chordalgraphtest.sml
+  unittest/TEST.sig
+
+  util/coolConsts.sml
+  util/errormsg.sml
+  util/flag.sml
+  util/mark.sml
+  util/printutil.sml
+  util/safe-io.sml
+  util/symbol.sml
+  util/word32.sml
