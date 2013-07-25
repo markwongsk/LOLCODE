@@ -18,7 +18,16 @@ fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, r
  | FOUNDYR
  | IHAZA
  | ITZ
+ | HOW
+ | DUZ
+ | I
+ | MAIN
+ | IF
+ | U
+ | SAY
+ | SO
  | R
+ | AN
  | INTCONST of Word32.word
  | IDENT of Symbol.symbol
  | SUMOF | DIFFOF | PRODUKTOF | QUOSHUNTOF | MODOF
@@ -46,7 +55,7 @@ fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, r
 %left SUMOF DIFFOF PRODUKTOF QUOSHUNTOF MODOF NEG
 
 %%
-program    : HAI stmts KTHXBYE     (stmts)
+program    : HAI HOW DUZ I MAIN stmts IF U SAY SO KTHXBYE (stmts)
 
 stmts      :                       ([])
            | stmt stmts            (stmt :: stmts)
@@ -58,9 +67,9 @@ stmt       : IHAZA IDENT           (marks (A.Decl IDENT, (IHAZAleft, IDENTright)
 
 exp        : INTCONST              (mark (A.ConstExp(INTCONST),(INTCONSTleft,INTCONSTright)))
            | IDENT                 (mark (A.Var(IDENT), (IDENTleft,IDENTright)))
-           | SUMOF exp exp         (mark (A.OpExp (A.PLUS, [exp1,exp2]), (exp1left,exp2right)))
-           | DIFFOF exp exp        (mark (A.OpExp (A.MINUS, [exp1,exp2]), (exp1left,exp2right)))
-           | PRODUKTOF exp exp     (mark (A.OpExp (A.TIMES, [exp1,exp2]), (exp1left,exp2right)))
-           | QUOSHUNTOF exp exp    (mark (A.OpExp (A.DIVIDEDBY, [exp1,exp2]), (exp1left,exp2right)))
-           | MODOF exp exp         (mark (A.OpExp (A.MODULO, [exp1,exp2]), (exp1left,exp2right)))
+           | SUMOF exp AN exp      (mark (A.OpExp (A.PLUS, [exp1,exp2]), (exp1left,exp2right)))
+           | DIFFOF exp AN exp     (mark (A.OpExp (A.MINUS, [exp1,exp2]), (exp1left,exp2right)))
+           | PRODUKTOF exp AN exp  (mark (A.OpExp (A.TIMES, [exp1,exp2]), (exp1left,exp2right)))
+           | QUOSHUNTOF exp AN exp (mark (A.OpExp (A.DIVIDEDBY, [exp1,exp2]), (exp1left,exp2right)))
+           | MODOF exp AN exp      (mark (A.OpExp (A.MODULO, [exp1,exp2]), (exp1left,exp2right)))
            | NEG exp               (mark (A.OpExp (A.NEGATIVE, [exp]), (NEGleft,expright)))

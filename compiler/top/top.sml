@@ -128,10 +128,10 @@ struct
 
 	val assem = RegisterAllocator.remap regMap
     ([Assem.DIRECTIVE(".file\t\"" ^ source ^ "\"")]
-   @ [Assem.DIRECTIVE(".global _l1_main\n_l1_main:")]
+   @ [Assem.DIRECTIVE(".global _LOLCODE_main\n_LOLCODE_main:")]
    @ assem
    @ [Assem.DIRECTIVE("\tRET")]
-   @ [Assem.DIRECTIVE ".ident\t\"15-411 L1 reference compiler\""])
+   @ [Assem.DIRECTIVE ".ident\t\"LOLCODE compiler\""])
 
 	val code = String.concat (List.map (Assem.format) assem)
 

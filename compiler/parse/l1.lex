@@ -60,15 +60,26 @@ ws = [\ \t\011\012\013];
 
 <INITIAL> "HAI"       => (Tokens.HAI (yypos, yypos + size yytext));
 <INITIAL> "KTHXBYE"   => (Tokens.KTHXBYE (yypos, yypos + size yytext));
+
+<INITIAL> "HOW"       => (Tokens.HOW (yypos, yypos + size yytext));
+<INITIAL> "DUZ"       => (Tokens.DUZ (yypos, yypos + size yytext));
+<INITIAL> "I"         => (Tokens.I (yypos, yypos + size yytext));
+<INITIAL> "MAIN"      => (Tokens.MAIN (yypos, yypos + size yytext));
+<INITIAL> "IF"        => (Tokens.IF (yypos, yypos + size yytext));
+<INITIAL> "U"         => (Tokens.U (yypos, yypos + size yytext));
+<INITIAL> "SAY"       => (Tokens.SAY (yypos, yypos + size yytext));
+<INITIAL> "SO"        => (Tokens.SO (yypos, yypos + size yytext));
+
+<INITIAL> "IHAZA"     => (Tokens.IHAZA (yypos, yypos + size yytext));
 <INITIAL> "ITZ"       => (Tokens.ITZ (yypos, yypos + size yytext));
 <INITIAL> "R"         => (Tokens.R (yypos, yypos + size yytext));
 
-<INITIAL> "IHAZA"     => (Tokens.IHAZA (yypos, yypos + size yytext));
-
+<INITIAL> "SUMOF"     => (Tokens.SUMOF (yypos, yypos + size yytext));
 <INITIAL> "DIFFOF"    => (Tokens.DIFFOF (yypos, yypos + size yytext));
 <INITIAL> "PRODUKTOF" => (Tokens.PRODUKTOF (yypos, yypos + size yytext));
 <INITIAL> "QUOSHUNTOF"=> (Tokens.QUOSHUNTOF (yypos, yypos + size yytext));
 <INITIAL> "MODOF"     => (Tokens.MODOF (yypos, yypos + size yytext));
+<INITIAL> "AN"        => (Tokens.AN (yypos, yypos + size yytext));
 
 <INITIAL> "FOUNDYR"    => (Tokens.FOUNDYR (yypos, yypos + size yytext));
 
