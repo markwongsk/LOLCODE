@@ -22,23 +22,27 @@ struct
     | rt_stmts (stmt::stmts) =
         case stmt of
           A.IfThenElse(e, s1, s2) =>
-            let val (s1', s1ret) = rt_stmts s1
-                val (s2', s2ret) = rt_stmts s2
+            let 
+                val ([s1'], s1ret) = rt_stmts [s1]
+                val ([s2'], s2ret) = rt_stmts [s2]
             in if s1ret andalso s2ret then
                  ([A.IfThenElse(e, s1', s2')], true)
                else let val (stmts', stmtsret) = rt_stmts stmts
                     in (A.IfThenElse(e, s1', s2')::stmts', stmtsret)
                     end
             end
-        | A.Return(e) => ([A.Return(e)], true)
+        | A.Return(e) => ([A.Return(e)], true) 
         | A.Seq(s) =>
-            let val (s', sret) = rt_stmts s
+            let 
+                val (s', sret) = rt_stmts s
             in if sret then ([A.Seq(s')], true)
                else let val (stmts', stmtsret) = rt_stmts stmts
                     in (A.Seq(s')::stmts', stmtsret)
                     end
             end
-        | _ => let val (stmts', stmtsret) = rt_stmts stmts
+        | A.Markeds(s) => rt_stmts ([Mark.data s])
+        | _ => let 
+                   val (stmts', stmtsret) = rt_stmts stmts
                in (stmt::stmts', stmtsret)
                end
 

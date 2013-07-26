@@ -50,7 +50,7 @@ struct
         let
           val nextStmts : A.stmt list =
               case stmt of
-                A.IfThenElse(e, s1, s2) => s1 @ s2
+                A.IfThenElse(e, s1, s2) => [s1, s2]
               | A.While(e, s) => [s]
               | A.For(s1, e, s2, s3) => [s1, s2, s3]
               | A.Seq(s) => s
@@ -99,8 +99,8 @@ struct
                                  SOME(SET(_)) => A.Nop
                                | _ => A.Assign(id, mapConsts_exp varMap e))
          | A.IfThenElse(e, s1, s2)=> A.IfThenElse(mapConsts_exp varMap e,
-                                                  [hd(mapConsts_stmts varMap s1)],
-                                                  [hd(mapConsts_stmts varMap s2)])
+                                                  hd(mapConsts_stmts varMap [s1]),
+                                                  hd(mapConsts_stmts varMap [s2]))
          | A.While(e, s) => A.While(mapConsts_exp varMap e,
                                     hd(mapConsts_stmts varMap [s]))
          | A.For(s1, e, s2, s3) => A.For(hd(mapConsts_stmts varMap [s1]),

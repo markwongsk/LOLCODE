@@ -56,7 +56,7 @@ sig
    | Marked of exp Mark.marked
   and stmt =
      Assign of ident * exp
-   | IfThenElse of exp * stmt list * stmt list
+   | IfThenElse of exp * stmt * stmt
    | While of exp * stmt
    | For of stmt * exp * stmt * stmt
    | Continue
@@ -125,7 +125,7 @@ struct
    | Tern of exp * exp * exp
   and stmt =
      Assign of ident * exp
-   | IfThenElse of exp * stmt list * stmt list
+   | IfThenElse of exp * stmt * stmt 
    | While of exp * stmt
    | For of stmt * exp * stmt * stmt
    | Continue
@@ -184,7 +184,7 @@ struct
 
     fun pp_stmt (Assign(id,exp)) = pp_ident id ^ " = " ^ pp_exp exp
       | pp_stmt (IfThenElse(exp,s1,s2)) =
-          "if (" ^ pp_exp exp ^ ")\n" ^ pp_stmts s1 ^ "\n" ^ "else\n" ^ pp_stmts s2
+          "if (" ^ pp_exp exp ^ ")\n" ^ pp_stmt s1 ^ "\n" ^ "else\n" ^ pp_stmt s2
       | pp_stmt (While(exp,s)) = "while (" ^ pp_exp exp ^ ")\n" ^ pp_stmt s
       | pp_stmt (For(s1,exp,s2,s3)) =
           "for (" ^ pp_stmt s1 ^ "; " ^ pp_exp exp ^ "; " ^ pp_stmt s2 ^ ")\n" ^

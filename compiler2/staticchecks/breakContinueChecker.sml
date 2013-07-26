@@ -38,8 +38,8 @@ struct
               | _ => ()
       in
         case stmt of
-          A.IfThenElse(e, s1, s2) => (bcc_stmts isInner s1 ext;
-                                      bcc_stmts isInner s2 ext)
+          A.IfThenElse(e, s1, s2) => (bcc_stmts isInner [s1] ext;
+                                      bcc_stmts isInner [s2] ext)
         | A.While(e, s) => bcc_stmt true s ext
         | A.For(s1, e, s2, s3) => (checkStep s2 ext;
                                    bcc_stmt false s1 ext;

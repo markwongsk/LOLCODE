@@ -189,8 +189,8 @@ in
           val label1 = ("true_clause_",Label.new ())
           val label2 = ("end_of_conditional_",Label.new ())
           val (ecr, ecf) = trans_exp  e
-          val s1cr = trans_stmts s1 br c
-          val s2cr = trans_stmts s2 br c
+          val s1cr = trans_stmt s1 br c
+          val s2cr = trans_stmt s2 br c
         in
           (ecr @
            [T.IFGOTO(ecf, label1)] @

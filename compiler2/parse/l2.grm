@@ -33,6 +33,8 @@ fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, r
  | NO
  | WAI
  | OIC
+ | SAEM
+ | DIFFRINT
  | IM
  | IN
  | YR
@@ -93,9 +95,9 @@ simp       : IHAZA IDENT           (marks (A.Declare (IDENT, NONE), (IHAZAleft, 
            | IDENT R exp           (marks (A.Assign (IDENT, exp), (IDENTleft, expright)))
 
 control    : exp O RLYY YA RLY stmts NO WAI stmts OIC %prec NO
-                                   (A.IfThenElse(exp, stmts1, stmts2))
+                                   (A.IfThenElse(exp, A.Seq(stmts1), A.Seq(stmts2)))
            | exp O RLYY YA RLY stmts OIC %prec NO
-                                   (A.IfThenElse(exp, stmts1, [A.Nop]))
+                                   (A.IfThenElse(exp, A.Seq(stmts1), A.Seq([A.Nop])))
            | FOUNDYR exp           (marks ((A.Return exp), (FOUNDYRleft, expright)))
 
 exp        : INTCONST              (mark (A.ConstExp(A.IntConst(INTCONST)),(INTCONSTleft,INTCONSTright)))
@@ -113,3 +115,5 @@ exp        : INTCONST              (mark (A.ConstExp(A.IntConst(INTCONST)),(INTC
            | NOT exp %prec UNARY   (mark (A.UnopExp (A.NOT,exp), (NOTleft, expright)))
            | BIGGR OF exp AN exp   (mark (A.BinopExp (A.GT,exp1,exp2), (BIGGRleft, expright)))
            | SMALLR OF exp AN exp  (mark (A.BinopExp (A.LT,exp1,exp2), (SMALLRleft, expright)))
+           | BOTH SAEM exp AN exp  (mark (A.BinopExp (A.EQ,exp1,exp2), (BOTHleft, exp2right)))
+           | DIFFRINT exp AN exp   (mark (A.BinopExp (A.NEQ,exp1,exp2), (DIFFRINTleft, exp2right)))

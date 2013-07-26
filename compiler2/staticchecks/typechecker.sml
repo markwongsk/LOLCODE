@@ -60,7 +60,7 @@ struct
               A.Assign(id, e) =>
                 (checkAssign table (id, tc_exp table e ext) ext; table)
             | A.IfThenElse(e, s1, s2) =>
-                (tc_exp table e ext; tc_stmts s1 table ext; tc_stmts s2 table ext; table)
+                (tc_exp table e ext; tc_stmts [s1] table ext; tc_stmts [s2] table ext; table)
             | A.While(e, s) =>
                 (tc_exp table e ext; tc_stmts [s] table ext; table)
             | A.For(s1, e, s2, s3) =>
