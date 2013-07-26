@@ -15,6 +15,7 @@ end
 structure Trans :> TRANS =
 struct
   exception IllegalStateException
+  exception HandleThisLaterException
 
   structure A = Ast
   structure T = Tree
@@ -34,7 +35,7 @@ local
     | SOME t => t
 
   local
-    fun toSmlTruth A.TRUE = true | toSmlTruth A.FALSE = false
+    fun toSmlTruth A.TRUE = true | toSmlTruth A.FALSE = false | toSmlTruth _ = raise HandleThisLaterException
     fun fromSmlTruth b = if b then A.TRUE else A.FALSE
   in
   (* Fold constants using the given operation. It is an error to call
@@ -79,6 +80,7 @@ local
                                   Word.fromInt(0x1F))
         in T.CONST(A.IntConst(Word32.~>>(c1, shift)))
         end
+    | fold_consts _ = raise HandleThisLaterException
   end
 in
   fun not_helper e =
@@ -187,8 +189,8 @@ in
           val label1 = ("true_clause_",Label.new ())
           val label2 = ("end_of_conditional_",Label.new ())
           val (ecr, ecf) = trans_exp  e
-          val s1cr = trans_stmt  s1 br c
-          val s2cr = trans_stmt  s2 br c
+          val s1cr = trans_stmts s1 br c
+          val s2cr = trans_stmts s2 br c
         in
           (ecr @
            [T.IFGOTO(ecf, label1)] @
@@ -232,15 +234,15 @@ in
     | trans_stmt (A.Nop) _ _ = []
     | trans_stmt (A.Seq (stms)) br c =
         trans_stmts stms br c
-    | trans_stmt (A.Declare (id,t,NONE)) _ _ = []
-    | trans_stmt (A.Declare (id,t,SOME e)) br c =
+    | trans_stmt (A.Declare (id,NONE)) _ _ = []
+    | trans_stmt (A.Declare (id,SOME e)) br c =
         trans_stmt (A.Assign(id,e)) br c
     | trans_stmt (A.Markeds (marked_stm)) br c =
         trans_stmt  (Mark.data marked_stm) br c
     | trans_stmt _ _ _ = raise IllegalStateException
 
   and trans_stmts (stm::stms) br c =
-        (trans_stmt  stm br c) @ trans_stmts stms br c
+        (trans_stmt stm br c) @ trans_stmts stms br c
     | trans_stmts  _ _ _ = []
 
   fun translate stms = trans_stmts stms NONE NONE

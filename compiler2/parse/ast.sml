@@ -15,7 +15,6 @@
 signature AST =
 sig
   type ident = Symbol.symbol
-  datatype c0type = INT | BOOL
 
   datatype const =
      IntConst of Word32.word
@@ -47,6 +46,7 @@ sig
    | BNOT
    | NEGATIVE
 
+  (* contract is all of these keep track of their types *)
   datatype exp =
      Var of ident
    | ConstExp of const
@@ -56,7 +56,7 @@ sig
    | Marked of exp Mark.marked
   and stmt =
      Assign of ident * exp
-   | IfThenElse of exp * stmt * stmt
+   | IfThenElse of exp * stmt list * stmt list
    | While of exp * stmt
    | For of stmt * exp * stmt * stmt
    | Continue
@@ -64,7 +64,7 @@ sig
    | Return of exp
    | Nop
    | Seq of stmt list (* need a way to say that stmt can be stmt list *)
-   | Declare of ident * c0type * exp option
+   | Declare of ident * exp option
    | Markeds of stmt Mark.marked
 
   type program = stmt list
@@ -77,7 +77,6 @@ sig
     val pp_program : program -> string
     val pp_unop_oper : unop -> string
     val pp_binop_oper : binop -> string
-    val pp_type : c0type -> string
   end
 
 end
@@ -86,7 +85,6 @@ structure Ast :> AST =
 struct
   exception ParserError
   type ident = Symbol.symbol
-  datatype c0type = INT | BOOL
 
   datatype const =
      IntConst of Word32.word
@@ -127,7 +125,7 @@ struct
    | Tern of exp * exp * exp
   and stmt =
      Assign of ident * exp
-   | IfThenElse of exp * stmt * stmt
+   | IfThenElse of exp * stmt list * stmt list
    | While of exp * stmt
    | For of stmt * exp * stmt * stmt
    | Continue
@@ -135,7 +133,7 @@ struct
    | Return of exp
    | Nop
    | Seq of stmt list
-   | Declare of ident * c0type * exp option
+   | Declare of ident * exp option
    | Markeds of stmt Mark.marked
 
   type program = stmt list
@@ -146,8 +144,6 @@ struct
   structure Print =
   struct
     fun pp_ident id = Symbol.name id
-    fun pp_type INT = "int"
-      | pp_type BOOL = "bool"
 
     fun pp_binop_oper PLUS = "+"
       | pp_binop_oper MINUS = "-"
@@ -188,7 +184,7 @@ struct
 
     fun pp_stmt (Assign(id,exp)) = pp_ident id ^ " = " ^ pp_exp exp
       | pp_stmt (IfThenElse(exp,s1,s2)) =
-          "if (" ^ pp_exp exp ^ ")\n" ^ pp_stmt s1 ^ "\n" ^ "else\n" ^ pp_stmt s2
+          "if (" ^ pp_exp exp ^ ")\n" ^ pp_stmts s1 ^ "\n" ^ "else\n" ^ pp_stmts s2
       | pp_stmt (While(exp,s)) = "while (" ^ pp_exp exp ^ ")\n" ^ pp_stmt s
       | pp_stmt (For(s1,exp,s2,s3)) =
           "for (" ^ pp_stmt s1 ^ "; " ^ pp_exp exp ^ "; " ^ pp_stmt s2 ^ ")\n" ^
@@ -198,9 +194,8 @@ struct
       | pp_stmt (Return exp) = "return " ^ pp_exp exp
       | pp_stmt Nop = "__NOP__"
       | pp_stmt (Seq stmts) = "\n{\n" ^ pp_stmts stmts ^ "}\n"
-      | pp_stmt (Declare(id,t,NONE)) = pp_type t ^ " " ^ pp_ident id ^ ";"
-      | pp_stmt (Declare(id,t,SOME e)) = pp_type t ^ " " ^ pp_ident id ^ " = " ^
-                                         pp_exp e
+      | pp_stmt (Declare(id,NONE)) = pp_ident id ^ ";"
+      | pp_stmt (Declare(id,SOME e)) = pp_ident id ^ " = " ^ pp_exp e
       | pp_stmt (Markeds (marked_stmt)) = pp_stmt (Mark.data marked_stmt)
 
     and pp_stmts nil = ""

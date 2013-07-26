@@ -61,8 +61,8 @@ struct
             )
         | A.IfThenElse(e, s1, s2) =>
             let val _ = ic_exp initSet e ext
-                val (_, initSet1, ending1) = ic_stmts [s1] step env ext
-                val (_, initSet2, ending2) = ic_stmts [s2] step env ext
+                val (_, initSet1, ending1) = ic_stmts s1 step env ext
+                val (_, initSet2, ending2) = ic_stmts s2 step env ext
             in
               case (ending1, ending2) of
                 (JUMP, JUMP) =>
@@ -104,7 +104,7 @@ struct
                            (declSet, Symbol.intersection(declSet, initSet'))
                            ext
             end
-        | A.Declare(id, t, eOpt) =>
+        | A.Declare(id, eOpt) =>
             (case eOpt of
                NONE => ic_stmts stmts step (Symbol.add declSet id, initSet) ext
              | SOME e => ( ic_exp initSet e ext;

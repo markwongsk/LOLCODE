@@ -48,9 +48,9 @@ struct
   fun cc_stmts [] vars = vars
     | cc_stmts (stmt::stmts) vars =
         let
-          val nextStmts =
+          val nextStmts : A.stmt list =
               case stmt of
-                A.IfThenElse(e, s1, s2) => [s1, s2]
+                A.IfThenElse(e, s1, s2) => s1 @ s2
               | A.While(e, s) => [s]
               | A.For(s1, e, s2, s3) => [s1, s2, s3]
               | A.Seq(s) => s
@@ -59,7 +59,7 @@ struct
           val newVars =
               case stmt of
                 A.Assign(id, e) => updateVarStatus id vars e
-              | A.Declare(id, t, eOpt) =>
+              | A.Declare(id, eOpt) =>
                   if isSome eOpt then updateVarStatus id vars (valOf eOpt)
                   else vars
               | _ => vars
@@ -99,8 +99,8 @@ struct
                                  SOME(SET(_)) => A.Nop
                                | _ => A.Assign(id, mapConsts_exp varMap e))
          | A.IfThenElse(e, s1, s2)=> A.IfThenElse(mapConsts_exp varMap e,
-                                                  hd(mapConsts_stmts varMap [s1]),
-                                                  hd(mapConsts_stmts varMap [s2]))
+                                                  [hd(mapConsts_stmts varMap s1)],
+                                                  [hd(mapConsts_stmts varMap s2)])
          | A.While(e, s) => A.While(mapConsts_exp varMap e,
                                     hd(mapConsts_stmts varMap [s]))
          | A.For(s1, e, s2, s3) => A.For(hd(mapConsts_stmts varMap [s1]),
@@ -109,10 +109,10 @@ struct
                                          hd(mapConsts_stmts varMap [s3]))
          | A.Return(e) => A.Return(mapConsts_exp varMap e)
          | A.Seq(stmts') => A.Seq(mapConsts_stmts varMap stmts')
-         | A.Declare(id, t, eOpt) =>
+         | A.Declare(id, eOpt) =>
              if isSome eOpt
-             then A.Declare (id, t, SOME(mapConsts_exp varMap (valOf eOpt)))
-             else A.Declare (id, t, eOpt)
+             then A.Declare (id, SOME(mapConsts_exp varMap (valOf eOpt)))
+             else A.Declare (id, eOpt)
          | A.Markeds(marked_stmt) =>
              let val newStmt = hd(mapConsts_stmts varMap [Mark.data marked_stmt])
              in A.Markeds(Mark.mark'(newStmt, Mark.ext marked_stmt))

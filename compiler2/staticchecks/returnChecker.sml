@@ -22,8 +22,8 @@ struct
     | rt_stmts (stmt::stmts) =
         case stmt of
           A.IfThenElse(e, s1, s2) =>
-            let val ([s1'], s1ret) = rt_stmts [s1]
-                val ([s2'], s2ret) = rt_stmts [s2]
+            let val (s1', s1ret) = rt_stmts s1
+                val (s2', s2ret) = rt_stmts s2
             in if s1ret andalso s2ret then
                  ([A.IfThenElse(e, s1', s2')], true)
                else let val (stmts', stmtsret) = rt_stmts stmts
@@ -42,6 +42,7 @@ struct
                in (stmt::stmts', stmtsret)
                end
 
+  (* should return NOOB *)
   fun returncheck prog =
       case rt_stmts prog of
         (newAst, true) => newAst

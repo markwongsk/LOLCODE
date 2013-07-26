@@ -1,11 +1,4 @@
-(* L2 Compiler
- * L2 grammar
- * Author: Kaustuv Chaudhuri <kaustuv+@cs.cmu.edu>
- * Modified: Frank Pfenning <fp@cs.cmu.edu>
- *
- * Modified: Anand Subramanian <asubrama@andrew.cmu.edu> Fall 2010
- * Now conforms to the L2 fragment of C0
- *)
+(* LOLCODE Compiler *)
 
 structure A = Ast
 
@@ -15,74 +8,63 @@ structure A = Ast
 fun mark (e, (left, right)) = A.Marked (Mark.mark' (e, ParseState.ext (left, right)))
 fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, right)))
 
-(* expand_asnop (id, "op=", exp) region = "id = id op exps"
- * or = "id = exp" if asnop is "="
- * syntactically expands a compound assignment operator
- *)
-fun expand_asnop (id, NONE, exp) (left, right) =
-      A.Assign(id, exp)
-  | expand_asnop (id, SOME(binop), exp) (left, right) =
-      A.Assign(id, mark(A.BinopExp(binop, A.Var(id), exp), (left, right)))
-
-exception NoMain
-fun check_main symbol =
-    case Symbol.compare(Symbol.symbol "main", symbol) of
-      EQUAL => ()
-    | _ => raise NoMain
-
 %%
 %header (functor L2LrValsFn (structure Token : TOKEN))
 
 %term
    EOF
- | SEMI
+ | HAI
+ | KTHXBYE
+ | FOUNDYR
+ | IHAZA
+ | ITZ
+ | HOW
+ | DUZ
+ | I
+ | MAIN
+ | IF
+ | U
+ | SAY
+ | SO
+ | O
+ | RLYY
+ | YA
+ | RLY
+ | NO
+ | WAI
+ | OIC
+ | IM
+ | IN
+ | YR
+ | OUTTA
+ | TIL
+ | WILE
+ | GTFO
+ | UPPIN
+ | NERFIN
+ | R
+ | AN
  | INTCONST of Word32.word
- | IDENT    of Symbol.symbol
- | RETURN
- | INT | BOOL
- | STRUCT | TYPEDEF
- | IF | ELSE | WHILE | FOR
- | CONTINUE | BREAK
- | ASSERT
- | TRUE | FALSE
- | NULL
- | ALLOC | ALLOC_ARRAY
- | VOID | CHAR | STRING
- | PLUS | MINUS | STAR | SLASH | PERCENT
- | ASSIGN | PLUSEQ | MINUSEQ | STAREQ | SLASHEQ | PERCENTEQ
- | LSHIFTEQ | RSHIFTEQ | ANDEQ | OREQ | XOREQ
- | LBRACE | RBRACE
- | LPAREN | RPAREN
- | LSHIFT | RSHIFT
- | GT | GEQ | EQ | LEQ | LT | NEQ
- | BAND | BOR | BNOT | BXOR
- | AND | OR | NOT
- | POSTINC | POSTDEC
- | COLON | TERN
- | UNARY | ASNOP
-(* UNARY and ASNOP are dummy terminals.
- * We need dummy terminals if we wish to assign a precedence
- * to a rule that does not correspond to the precedence of
- * the rightmost terminal in that rule.
- * Implicit in this is that precedence can only be infered
- * terminals. Therefore, don't try to assign precedence to "rules"
- *)
+ | WIN
+ | FAIL
+ | IDENT of Symbol.symbol
+ | SUMOF | DIFFOF | PRODUKTOF | QUOSHUNTOF | MODOF
+ | BIGGR | SMALLR
+ | EITHER | BOTH
+ | OF
+ | NEG | NOT
+ | UNARY
 
 %nonterm
    program  of A.stmt list
- | block    of A.stmt
- | c0type   of A.c0type
  | stmts    of A.stmt list
  | stmt     of A.stmt
  | decl     of A.stmt
- | control  of A.stmt
- | simpopt  of A.stmt
- | elseopt  of A.stmt
+ | declas   of A.stmt
  | simp     of A.stmt
+ | control  of A.stmt
  | lvalue   of A.ident
  | exp      of A.exp
- | asnop    of A.binop option
- | postop   of A.binop option
 
 %verbose       (* print summary of errors *)
 %pos int       (* positions *)
@@ -93,112 +75,41 @@ fun check_main symbol =
 %name L2
 
 (* The precedence grows down! *)
-%right TERN COLON
-%left OR
-%left AND
-%left BOR
-%left BXOR
-%left BAND
-%left EQ NEQ
-%left LT LEQ GT GEQ
-%left LSHIFT RSHIFT
-%left PLUS MINUS
-%left STAR SLASH PERCENT
-%right ELSE
+%left SUMOF DIFFOF PRODUKTOF QUOSHUNTOF MODOF NEG
+%right NO
 %right UNARY
-%left LPAREN
 
 %%
-
-(* note that MAIN is not intended to be a keyword.
- * the current rule is an expedient hack for forward compatability *)
-program    : INT IDENT LPAREN RPAREN LBRACE stmts RBRACE
-                                   (stmts)
-
-
-block      : LBRACE stmts RBRACE   (A.Seq (stmts))
-
-c0type     : INT                   (A.INT)
-           | BOOL                  (A.BOOL)
-
-decl       : c0type IDENT          (A.Declare (IDENT, c0type, NONE))
-           | c0type IDENT ASSIGN exp
-                                   (A.Declare (IDENT, c0type, SOME exp))
+program    : HAI HOW DUZ I MAIN stmts IF U SAY SO KTHXBYE (stmts)
 
 stmts      :                       ([])
            | stmt stmts            (stmt :: stmts)
 
-stmt       : simp SEMI             (marks (simp, (simpleft, simpright)))
-           | control               (control)
-           | block                 (block)
+stmt       : control               (control)
+           | simp                  (marks (simp, (simpleft, simpright)))
 
-simp       : lvalue asnop exp %prec ASNOP
-                                   (expand_asnop (lvalue, asnop, exp) (lvalueleft, expright))
-           | lvalue postop %prec UNARY
-                                   (expand_asnop (lvalue, postop,
-                                    A.ConstExp(A.IntConst(Word32.fromInt 1)))
-                                   (lvalueleft, postopright))
-           | decl                  (decl)
-           | exp                   (A.Assign(Symbol.bogus, exp))
+simp       : IHAZA IDENT           (marks (A.Declare (IDENT, NONE), (IHAZAleft, IDENTright)))
+           | IHAZA IDENT ITZ exp   (marks (A.Declare (IDENT, SOME exp), (IHAZAleft, expright)))
+           | IDENT R exp           (marks (A.Assign (IDENT, exp), (IDENTleft, expright)))
 
-control    : IF LPAREN exp RPAREN stmt ELSE stmt %prec ELSE
-                                   (A.IfThenElse(exp, stmt1, stmt2))
-           | IF LPAREN exp RPAREN stmt %prec ELSE
-                                   (A.IfThenElse(exp, stmt, A.Nop))
-           | WHILE LPAREN exp RPAREN stmt
-                                   (A.Seq([A.While(exp, stmt)]))
-           | FOR LPAREN simpopt SEMI exp SEMI simpopt RPAREN stmt
-                                   (A.Seq([A.For(simpopt1, exp, simpopt2, stmt)]))
-           | CONTINUE SEMI         (A.Continue)
-           | BREAK SEMI            (A.Break)
-           | RETURN exp SEMI       (A.Return(exp))
+control    : exp O RLYY YA RLY stmts NO WAI stmts OIC %prec NO
+                                   (A.IfThenElse(exp, stmts1, stmts2))
+           | exp O RLYY YA RLY stmts OIC %prec NO
+                                   (A.IfThenElse(exp, stmts1, [A.Nop]))
+           | FOUNDYR exp           (marks ((A.Return exp), (FOUNDYRleft, expright)))
 
-simpopt    :                       (A.Nop)
-           | simp                  (simp)
-
-lvalue     : LPAREN lvalue RPAREN  (lvalue)
-           | IDENT                 (IDENT)
-
-exp        : LPAREN exp RPAREN     (exp)
-           | INTCONST              (mark (A.ConstExp(A.IntConst(INTCONST)),(INTCONSTleft,INTCONSTright)))
-           | TRUE                  (mark (A.ConstExp(A.TRUE),(TRUEleft,TRUEright)))
-           | FALSE                 (mark (A.ConstExp(A.FALSE),(FALSEleft,FALSEright)))
+exp        : INTCONST              (mark (A.ConstExp(A.IntConst(INTCONST)),(INTCONSTleft,INTCONSTright)))
+           | WIN                   (mark (A.ConstExp(A.TRUE),(WINleft,WINright)))
+           | FAIL                  (mark (A.ConstExp(A.FALSE),(FAILleft,FAILright)))
            | IDENT                 (mark (A.Var(IDENT), (IDENTleft,IDENTright)))
-           | exp PLUS exp          (mark (A.BinopExp (A.PLUS, exp1,exp2), (exp1left,exp2right)))
-           | exp MINUS exp         (mark (A.BinopExp (A.MINUS,exp1,exp2), (exp1left,exp2right)))
-           | exp STAR exp          (mark (A.BinopExp (A.TIMES,exp1,exp2), (exp1left,exp2right)))
-           | exp SLASH exp         (mark (A.BinopExp (A.DIVIDEDBY,exp1,exp2), (exp1left,exp2right)))
-           | exp PERCENT exp       (mark (A.BinopExp (A.MODULO,exp1,exp2), (exp1left,exp2right)))
-           | exp LT exp            (mark (A.BinopExp (A.LT,exp1,exp2), (exp1left,exp2right)))
-           | exp GT exp            (mark (A.BinopExp (A.GT,exp1,exp2), (exp1left,exp2right)))
-           | exp LEQ exp           (mark (A.BinopExp (A.LEQ,exp1,exp2), (exp1left,exp2right)))
-           | exp GEQ exp           (mark (A.BinopExp (A.GEQ,exp1,exp2), (exp1left,exp2right)))
-           | exp EQ exp            (mark (A.BinopExp (A.EQ,exp1,exp2), (exp1left,exp2right)))
-           | exp NEQ exp           (mark (A.BinopExp (A.NEQ,exp1,exp2), (exp1left,exp2right)))
-           | exp AND exp           (mark (A.BinopExp (A.AND,exp1,exp2), (exp1left,exp2right)))
-           | exp OR exp            (mark (A.BinopExp (A.OR,exp1,exp2), (exp1left,exp2right)))
-           | exp BAND exp          (mark (A.BinopExp (A.BAND,exp1,exp2), (exp1left,exp2right)))
-           | exp BOR exp           (mark (A.BinopExp (A.BOR,exp1,exp2), (exp1left,exp2right)))
-           | exp BXOR exp          (mark (A.BinopExp (A.BXOR,exp1,exp2), (exp1left,exp2right)))
-           | exp LSHIFT exp        (mark (A.BinopExp (A.LSHIFT,exp1,exp2), (exp1left,exp2right)))
-           | exp RSHIFT exp        (mark (A.BinopExp (A.RSHIFT,exp1,exp2), (exp1left,exp2right)))
-           | MINUS exp %prec UNARY (mark (A.UnopExp (A.NEGATIVE, exp), (MINUSleft,expright)))
-           | NOT exp %prec UNARY   (mark (A.UnopExp (A.NOT, exp), (NOTleft, NOTright)))
-           | BNOT exp %prec UNARY  (mark (A.UnopExp (A.BNOT, exp), (BNOTleft, BNOTright)))
-           | exp TERN exp COLON exp
-                                   (A.Tern(exp1, exp2, exp3))
-
-asnop      : ASSIGN                (NONE)
-           | PLUSEQ                (SOME(A.PLUS))
-           | MINUSEQ               (SOME(A.MINUS))
-           | STAREQ                (SOME(A.TIMES))
-           | SLASHEQ               (SOME(A.DIVIDEDBY))
-           | PERCENTEQ             (SOME(A.MODULO))
-           | ANDEQ                 (SOME(A.BAND))
-           | XOREQ                 (SOME(A.BXOR))
-           | OREQ                  (SOME(A.BOR))
-           | LSHIFTEQ              (SOME(A.LSHIFT))
-           | RSHIFTEQ              (SOME(A.RSHIFT))
-
-postop     : POSTINC               (SOME(A.PLUS))
-           | POSTDEC               (SOME(A.MINUS))
+           | SUMOF exp AN exp      (mark (A.BinopExp (A.PLUS,exp1,exp2), (SUMOFleft,exp2right)))
+           | DIFFOF exp AN exp     (mark (A.BinopExp (A.MINUS,exp1,exp2), (DIFFOFleft,exp2right)))
+           | PRODUKTOF exp AN exp  (mark (A.BinopExp (A.TIMES,exp1,exp2), (exp1left,exp2right)))
+           | QUOSHUNTOF exp AN exp (mark (A.BinopExp (A.DIVIDEDBY,exp1,exp2), (QUOSHUNTOFleft,exp2right)))
+           | MODOF exp AN exp      (mark (A.BinopExp (A.MODULO,exp1,exp2), (MODOFleft,exp2right)))
+           | NEG exp               (mark (A.UnopExp (A.NEGATIVE,exp), (NEGleft,expright)))
+           | BOTH OF exp AN exp    (mark (A.BinopExp (A.AND,exp1,exp2), (BOTHleft, exp2right)))
+           | EITHER OF exp AN exp  (mark (A.BinopExp (A.OR,exp1,exp2), (EITHERleft, exp2right))) 
+           | NOT exp %prec UNARY   (mark (A.UnopExp (A.NOT,exp), (NOTleft, expright)))
+           | BIGGR OF exp AN exp   (mark (A.BinopExp (A.GT,exp1,exp2), (BIGGRleft, expright)))
+           | SMALLR OF exp AN exp  (mark (A.BinopExp (A.LT,exp1,exp2), (SMALLRleft, expright)))
