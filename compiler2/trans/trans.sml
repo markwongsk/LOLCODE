@@ -200,13 +200,14 @@ in
            s1cr @
            [T.LABEL(label2)])
         end
-    | trans_stmt (A.While(e,s)) br c =
-        trans_stmt (A.For(A.Nop,e,A.Nop,s)) br c
-    | trans_stmt (A.For(s1,e,s2,s3)) br c =
+    | trans_stmt (A.While(id, e,s)) br c =
+        trans_stmt (A.For(id,A.Nop,e,A.Nop,s)) br c
+    | trans_stmt (A.For(id,s1,e,s2,s3)) br c =
         let
-          val label1 = ("for_body_",Label.new ()) (* main body *)
-          val label2 = ("for_step_",Label.new ()) (* continue label *)
-          val label3 = ("end_of_for_",Label.new ()) (* break label *)
+          val idString = Symbol.name id
+          val label1 = ("for_body_" ^ idString,Label.new ()) (* main body *)
+          val label2 = ("for_step_" ^ idString,Label.new ()) (* continue label *)
+          val label3 = ("end_of_for_" ^ idString,Label.new ()) (* break label *)
           val s1cr = trans_stmt  s1 br c
           val (ecr, ecf) = trans_exp  e
           val s2cr = trans_stmt  s2 br c

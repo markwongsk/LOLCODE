@@ -74,11 +74,11 @@ struct
                            (declSet, Symbol.intersection (initSet1, initSet2))
                            ext
             end
-        | A.While(e, s) =>
+        | A.While(id, e, s) =>
             (ic_exp initSet e ext;
              ic_stmts [s] NONE env ext;
              ic_stmts stmts step env ext)
-        | A.For(s1, e, s2, s3) =>
+        | A.For(id, s1, e, s2, s3) =>
             let val (declSet', initSet', _) = ic_stmts [s1] NONE env ext
                 val _ = ic_exp initSet' e ext
                 val (declSet'', initSet'', ending) =

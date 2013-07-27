@@ -70,10 +70,12 @@ ws = [\ \t\011\012\013];
 <INITIAL> "SAY"       => (Tokens.SAY (yypos, yypos + size yytext));
 <INITIAL> "SO"        => (Tokens.SO (yypos, yypos + size yytext));
 
-<INITIAL> "IHAZA"     => (Tokens.IHAZA (yypos, yypos + size yytext));
+<INITIAL> "HAS"       => (Tokens.HAS (yypos, yypos + size yytext));
+<INITIAL> "A"         => (Tokens.A (yypos, yypos + size yytext));
 <INITIAL> "ITZ"       => (Tokens.ITZ (yypos, yypos + size yytext));
 <INITIAL> "R"         => (Tokens.R (yypos, yypos + size yytext));
 
+<INITIAL> "OF"        => (Tokens.OF (yypos, yypos + size yytext));
 <INITIAL> "O"         => (Tokens.O (yypos, yypos + size yytext));
 <INITIAL> "RLY?"      => (Tokens.RLYY (yypos, yypos + size yytext));
 <INITIAL> "YA"        => (Tokens.YA (yypos, yypos + size yytext));

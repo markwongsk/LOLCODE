@@ -61,9 +61,9 @@ struct
                 (checkAssign table (id, tc_exp table e ext) ext; table)
             | A.IfThenElse(e, s1, s2) =>
                 (tc_exp table e ext; tc_stmts [s1] table ext; tc_stmts [s2] table ext; table)
-            | A.While(e, s) =>
+            | A.While(id, e, s) =>
                 (tc_exp table e ext; tc_stmts [s] table ext; table)
-            | A.For(s1, e, s2, s3) =>
+            | A.For(id, s1, e, s2, s3) =>
                 let val table' = tc_stmts [s1] table ext
                 in tc_exp table' e ext; tc_stmts [s2] table' ext; tc_stmts [s3] table' ext; table
                 end

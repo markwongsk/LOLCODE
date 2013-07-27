@@ -5,8 +5,18 @@ structure A = Ast
 (* for simplicity, we only mark expressions, not statements *)
 
 (* mark e with region (left, right) in source file *)
-fun mark (e, (left, right)) = A.Marked (Mark.mark' (e, ParseState.ext (left, right)))
-fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, right)))
+fun mark (e, (left, right)) = 
+  let val _ = print ("Expression is: " ^ A.Print.pp_exp e ^ "\n")
+      in A.Marked (Mark.mark' (e, ParseState.ext (left,
+  right))) end
+fun marks (s, (left, right)) = 
+  let val _ = print ("Statement is: " ^ A.Print.pp_stmt s ^ "\n") in A.Markeds (Mark.mark' (s, ParseState.ext (left,
+  right))) end
+
+fun expand_postop (id, binop, exp) (left, right) =
+  A.Assign(id, mark(A.BinopExp(binop, A.Var(id), exp), (left, right)))
+
+val ONE = A.ConstExp(A.IntConst(Word32.fromInt 1))
 
 %%
 %header (functor L2LrValsFn (structure Token : TOKEN))
@@ -16,7 +26,8 @@ fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, r
  | HAI
  | KTHXBYE
  | FOUNDYR
- | IHAZA
+ | HAS
+ | A
  | ITZ
  | HOW
  | DUZ
@@ -67,6 +78,8 @@ fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, r
  | control  of A.stmt
  | lvalue   of A.ident
  | exp      of A.exp
+ | condition of A.exp
+ | operation of A.stmt
 
 %verbose       (* print summary of errors *)
 %pos int       (* positions *)
@@ -80,9 +93,14 @@ fun marks (s, (left, right)) = A.Markeds (Mark.mark' (s, ParseState.ext (left, r
 %left SUMOF DIFFOF PRODUKTOF QUOSHUNTOF MODOF NEG
 %right NO
 %right UNARY
+%right ITZ
+%left IM
+%left IDENT
+
+%prefer IM I FOUNDYR
 
 %%
-program    : HAI HOW DUZ I MAIN stmts IF U SAY SO KTHXBYE (stmts)
+program    : HAI HOW DUZ I MAIN stmts IF U SAY SO KTHXBYE (let val _ = print "Statement!\n" in stmts end)
 
 stmts      :                       ([])
            | stmt stmts            (stmt :: stmts)
@@ -90,15 +108,24 @@ stmts      :                       ([])
 stmt       : control               (control)
            | simp                  (marks (simp, (simpleft, simpright)))
 
-simp       : IHAZA IDENT           (marks (A.Declare (IDENT, NONE), (IHAZAleft, IDENTright)))
-           | IHAZA IDENT ITZ exp   (marks (A.Declare (IDENT, SOME exp), (IHAZAleft, expright)))
-           | IDENT R exp           (marks (A.Assign (IDENT, exp), (IDENTleft, expright)))
+simp       : I HAS A IDENT %prec ITZ         (marks (A.Declare (IDENT, NONE), (Ileft, IDENTright)))
+           | I HAS A IDENT ITZ exp %prec ITZ (marks (A.Declare (IDENT, SOME exp), (Ileft, expright)))
+           | IDENT R exp                     (marks (A.Assign (IDENT, exp), (IDENTleft, expright)))
 
 control    : exp O RLYY YA RLY stmts NO WAI stmts OIC %prec NO
-                                   (A.IfThenElse(exp, A.Seq(stmts1), A.Seq(stmts2)))
+                                   (marks (A.IfThenElse(exp, A.Seq(stmts1), A.Seq(stmts2)), (expleft, OICright)))
            | exp O RLYY YA RLY stmts OIC %prec NO
-                                   (A.IfThenElse(exp, A.Seq(stmts1), A.Seq([A.Nop])))
+                                   (marks (A.IfThenElse(exp, A.Seq(stmts1), A.Seq([A.Nop])), (expleft, OICright)))
+           | IM IN YR IDENT stmts IM OUTTA YR IDENT %prec IDENT
+                                   (marks (A.While(IDENT1, A.ConstExp(A.TRUE), A.Seq(stmts)), (IMleft, IDENT2right)))
+           | IM IN YR IDENT operation condition stmts IM OUTTA YR IDENT %prec IDENT
+                                   (marks (A.For(IDENT, A.Nop, condition, operation, A.Seq(stmts)), (IMleft, IDENT2right)))
            | FOUNDYR exp           (marks ((A.Return exp), (FOUNDYRleft, expright)))
+
+operation  : UPPIN YR IDENT        (expand_postop (IDENT, A.PLUS, ONE) (UPPINleft, IDENTright))
+           | NERFIN YR IDENT       (expand_postop (IDENT, A.MINUS, ONE) (NERFINleft, IDENTright))
+
+condition  : TIL exp               (mark (A.UnopExp (A.NOT, exp), (TILleft, expright)))
 
 exp        : INTCONST              (mark (A.ConstExp(A.IntConst(INTCONST)),(INTCONSTleft,INTCONSTright)))
            | WIN                   (mark (A.ConstExp(A.TRUE),(WINleft,WINright)))

@@ -51,8 +51,8 @@ struct
           val nextStmts : A.stmt list =
               case stmt of
                 A.IfThenElse(e, s1, s2) => [s1, s2]
-              | A.While(e, s) => [s]
-              | A.For(s1, e, s2, s3) => [s1, s2, s3]
+              | A.While(id, e, s) => [s]
+              | A.For(id, s1, e, s2, s3) => [s1, s2, s3]
               | A.Seq(s) => s
               | _ => []
 
@@ -101,12 +101,12 @@ struct
          | A.IfThenElse(e, s1, s2)=> A.IfThenElse(mapConsts_exp varMap e,
                                                   hd(mapConsts_stmts varMap [s1]),
                                                   hd(mapConsts_stmts varMap [s2]))
-         | A.While(e, s) => A.While(mapConsts_exp varMap e,
-                                    hd(mapConsts_stmts varMap [s]))
-         | A.For(s1, e, s2, s3) => A.For(hd(mapConsts_stmts varMap [s1]),
-                                         mapConsts_exp varMap e,
-                                         hd(mapConsts_stmts varMap [s2]),
-                                         hd(mapConsts_stmts varMap [s3]))
+         | A.While(id, e, s) => A.While(id, mapConsts_exp varMap e,
+                                        hd(mapConsts_stmts varMap [s]))
+         | A.For(id, s1, e, s2, s3) => A.For(id, hd(mapConsts_stmts varMap [s1]),
+                                             mapConsts_exp varMap e,
+                                             hd(mapConsts_stmts varMap [s2]),
+                                             hd(mapConsts_stmts varMap [s3]))
          | A.Return(e) => A.Return(mapConsts_exp varMap e)
          | A.Seq(stmts') => A.Seq(mapConsts_stmts varMap stmts')
          | A.Declare(id, eOpt) =>
