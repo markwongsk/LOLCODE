@@ -6,11 +6,12 @@ structure A = Ast
 
 (* mark e with region (left, right) in source file *)
 fun mark (e, (left, right)) = 
-  let val _ = print ("Expression is: " ^ A.Print.pp_exp e ^ "\n")
+  let (* val _ = print ("Expression is: " ^ A.Print.pp_exp e ^ "\n") *)
       in A.Marked (Mark.mark' (e, ParseState.ext (left,
   right))) end
 fun marks (s, (left, right)) = 
-  let val _ = print ("Statement is: " ^ A.Print.pp_stmt s ^ "\n") in A.Markeds (Mark.mark' (s, ParseState.ext (left,
+  let (* val _ = print ("Statement is: " ^ A.Print.pp_stmt s ^ "\n") *)
+  in A.Markeds (Mark.mark' (s, ParseState.ext (left,
   right))) end
 
 fun expand_postop (id, binop, exp) (left, right) =
@@ -46,10 +47,9 @@ val ONE = A.ConstExp(A.IntConst(Word32.fromInt 1))
  | OIC
  | SAEM
  | DIFFRINT
- | IM
- | IN
+ | IMIN
  | YR
- | OUTTA
+ | IMOUTTA
  | TIL
  | WILE
  | GTFO
@@ -94,13 +94,9 @@ val ONE = A.ConstExp(A.IntConst(Word32.fromInt 1))
 %right NO
 %right UNARY
 %right ITZ
-%left IM
-%left IDENT
-
-%prefer IM I FOUNDYR
 
 %%
-program    : HAI HOW DUZ I MAIN stmts IF U SAY SO KTHXBYE (let val _ = print "Statement!\n" in stmts end)
+program    : HAI HOW DUZ I MAIN stmts IF U SAY SO KTHXBYE (stmts)
 
 stmts      :                       ([])
            | stmt stmts            (stmt :: stmts)
@@ -116,10 +112,10 @@ control    : exp O RLYY YA RLY stmts NO WAI stmts OIC %prec NO
                                    (marks (A.IfThenElse(exp, A.Seq(stmts1), A.Seq(stmts2)), (expleft, OICright)))
            | exp O RLYY YA RLY stmts OIC %prec NO
                                    (marks (A.IfThenElse(exp, A.Seq(stmts1), A.Seq([A.Nop])), (expleft, OICright)))
-           | IM IN YR IDENT stmts IM OUTTA YR IDENT %prec IDENT
-                                   (marks (A.While(IDENT1, A.ConstExp(A.TRUE), A.Seq(stmts)), (IMleft, IDENT2right)))
-           | IM IN YR IDENT operation condition stmts IM OUTTA YR IDENT %prec IDENT
-                                   (marks (A.For(IDENT, A.Nop, condition, operation, A.Seq(stmts)), (IMleft, IDENT2right)))
+           | IMIN YR IDENT stmts IMOUTTA YR IDENT
+                                   (marks (A.While(IDENT1, A.ConstExp(A.TRUE), A.Seq(stmts)), (IMINleft, IDENT2right)))
+           | IMIN YR IDENT operation condition stmts IMOUTTA YR IDENT
+                                   (marks (A.For(IDENT, A.Nop, condition, operation, A.Seq(stmts)), (IMINleft, IDENT2right)))
            | FOUNDYR exp           (marks ((A.Return exp), (FOUNDYRleft, expright)))
 
 operation  : UPPIN YR IDENT        (expand_postop (IDENT, A.PLUS, ONE) (UPPINleft, IDENTright))

@@ -20,14 +20,14 @@ struct
   (* rt_stmts : Ast.stmt list -> (Ast.stmt list, bool) *)
   fun rt_stmts [] = ([], false)
     | rt_stmts (stmt::stmts) =
-        let (* val _ = print ("Statement is: " ^ A.Print.pp_stmt stmt ^ "\n") *)
+        let val _ = print ("Statement is: " ^ A.Print.pp_stmt stmt ^ "\n")
         in
         case stmt of
           A.IfThenElse(e, s1, s2) =>
-            let (* val _ = print "Case of IfThenElse\n" *)
+            let val _ = print "Case of IfThenElse\n"
                 val ([s1'], s1ret) = rt_stmts [s1]
                 val ([s2'], s2ret) = rt_stmts [s2]
-                (* val _ = print ("s1ret: " ^ Bool.toString s1ret ^ " s2ret: " ^ Bool.toString s2ret ^ "\n") *)
+                val _ = print ("s1ret: " ^ Bool.toString s1ret ^ " s2ret: " ^ Bool.toString s2ret ^ "\n")
             in if s1ret andalso s2ret then
                  ([A.IfThenElse(e, s1', s2')], true)
                else let val (stmts', stmtsret) = rt_stmts stmts
@@ -37,19 +37,19 @@ struct
         | A.Return(e) => ([A.Return(e)], true) 
         | A.Seq(s) =>
             let 
-                (* val _ = print "Case of Seq\n" *)
+                val _ = print "Case of Seq\n" 
                 val (s', sret) = rt_stmts s
-                (* val _ = print ("sret is : " ^ Bool.toString(sret) ^ "\n") *)
+                val _ = print ("sret is : " ^ Bool.toString(sret) ^ "\n")
             in if sret then ([A.Seq(s')], true)
                else let val (stmts', stmtsret) = rt_stmts stmts
                     in (A.Seq(s')::stmts', stmtsret)
                     end
             end
         | A.Markeds(s) => 
-               let (* val _ = print "Case of Marked\n" *)
+               let val _ = print "Case of Marked\n" 
                in rt_stmts ((Mark.data s)::stmts)
                end
-        | _ => let (* val _ = print "Case of other\n" *)
+        | _ => let val _ = print "Case of other\n" 
                    val (stmts', stmtsret) = rt_stmts stmts
                in (stmt::stmts', stmtsret)
                end
